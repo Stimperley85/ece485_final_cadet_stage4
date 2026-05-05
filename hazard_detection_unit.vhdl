@@ -21,30 +21,42 @@ end hazard_detection_unit;
 
 -- NOTE: only looks one instruction before dependency (not two or three before)
 architecture Behavioral of hazard_detection_unit is
-    -- declare any internal signals?
+--    -- declare any internal signals?
+--begin
+--    -- would opcodes of instructions be useful?
+   signal opcode, if_id_opcode       : STD_LOGIC_VECTOR(6 downto 0);
+--   signal double_stall : STD_LOGIC := '0';
 begin
-    -- would opcodes of instructions be useful?
-
+    -- would opcodes of current and previous instructions be useful?
+    opcode <= instr(6 downto 0);
+    if_id_opcode <= if_id_instr(6 downto 0);
     process(if_id_mem_read, if_id_rd, rs1, rs2, if_id_opcode, opcode, stall_counter) -- any others?)
-    begin      
+    begin  
+         
         if (reset = '1') then
             start_stall <= '0';
             double_stall <= '0';
+--        elsif (start_stall = '0' and double_stall = '1') then
+--            double_stall <= '0';  
         -- stall cases, dependency on a (1)load from memory, (2) load_addr
-        elsif (<what control signals and/or opcodes?>) 
-              and (<what control signals and opcodes?>) then -- single stall data dependency case
+        elsif ((if_id_load_addr = '1') and (opcode = "0000011"))
+              and (if_id_rd = rs1) then
+--              and (if_id_rd = rs1) then -- single stall data dependency case
                 start_stall <= '1';
-        elsif (<what control signals and/or opcodes?>) --(3) add, (4) addi/subi
-              and (<what control signals and/or opcodes?>)  -- stall data dependency case
-              and (<what control signals and/or opcodes?>) then --BNE double stall
-                    start_stall <= '1';
-                    double_stall <= '1';
-        elsif -- stall cases for branch or jump, needing time to calulate branch address, etc
-              (<what control signals and/or opcodes?>) then 
+        elsif ((if_id_mem_read = '1') and (opcode = "0110011")) -- or (opcode = "0010011")) --(3) add, (4) addi/subi
+              and (if_id_rd = rs1) then
+                start_stall <= '1';  -- stall data dependency case
+                double_stall <= '0';
+--              --and  then --BNE double stall
+--                    start_stall <= '1';
+--                    double_stall <= '1';
+        elsif ((opcode = "1100011") --or (if_id_opcode = "1100011"))-- stall cases for branch or jump, needing time to calulate branch address, etc
+              and (if_id_rd = rs1)) then 
                 start_stall <= '1';  
-                double_stall <= '0';    
+                double_stall <= '1';    
         else        
                 start_stall <= '0';
+                double_stall <= '0';
         end if;    
         
     end process;

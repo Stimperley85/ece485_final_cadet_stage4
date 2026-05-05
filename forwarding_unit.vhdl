@@ -18,25 +18,27 @@ end forwarding_unit;
 architecture Behavioral of forwarding_unit is
 
 begin
-    process(ex_mem_reg_write, mem_wb_mem_read, mem_wb_load_addr, ex_mem_rd, mem_wb_rd, id_ex_rs1 -- any others?)
-begin
-    -- mux to select alu input A (with forwarding)
+    process(ex_mem_reg_write, mem_wb_mem_read, mem_wb_load_addr, ex_mem_rd, mem_wb_rd, id_ex_rs1) -- any others?)
+    begin
+     --mux to select alu input A (with forwarding)
     --    mux_select_A
     --       00 normal
     --       01 forward from alu output
     --       10 forward from memory output
     --       11 forward from custom LoadAddr
 
-  -- Default: no forwarding
-  mux_select_A <= "00";
-
-  -- EX hazard
-  if <what control signals and opcodes?> then  -- alu to register case
-    mux_select_A <= "01";
-  elsif <what control signals and opcodes?> then  -- memory to register case
-    mux_select_A <= "10";
-  elsif <what control signals and opcodes?> then  -- load address to register case
-    mux_select_A <= "11";
-  end if;
+      -- Default: no forwarding
+      
+    
+      -- EX hazard
+      if (ex_mem_rd = id_ex_rs1) then --(<what control signals and opcodes?> then  -- alu to register case
+        mux_select_A <= "01";
+      elsif (mem_wb_mem_read = '1') then --<what control signals and opcodes?> then  -- memory to register case
+        mux_select_A <= "10";
+      elsif (mem_wb_load_addr = '1') then --<what control signals and opcodes?> then  -- load address to register case
+        mux_select_A <= "11";
+      else
+        mux_select_A <= "00";
+      end if;
     end process;
 end Behavioral;
