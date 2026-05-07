@@ -142,7 +142,7 @@ begin
             mem_wb_rd   <= (others => '0');
             mem_wb_alu_result  <= (others => '0');
         elsif rising_edge(clk) then
-            if ((start_stall = '1') or (double_stall = '1') or (stall_counter > 0)) then  -- if stall, then insert a NOP --UPDATE FOR DOUBLE STALL?
+            if ((start_stall = '1')  or (stall_counter > 0)) then --or (double_stall = '1') -- if stall, then insert a NOP --UPDATE FOR DOUBLE STALL? -- or branch
                 if_id_reg_write <= '0';
                 if_id_alu_src <= '0';
                 if_id_mem_read <= '0';

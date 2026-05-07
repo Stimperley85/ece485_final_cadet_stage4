@@ -29,14 +29,23 @@ begin
     --       11 forward from custom LoadAddr
 
       -- Default: no forwarding
-      
+--      if (((ex_mem_rd = id_ex_rs1) or (ex_mem_rd = if_id_rs1))and (ex_mem_reg_write = '1')) then -- and (ex_mem_reg_write = '1'))  then --(<what control signals and opcodes?> then  -- alu to register case --and ex_mem_reg_write
+--        mux_select_A <= "01";
+----      elsif ((ex_mem_reg_write = '1') and (mem_wb_rd = id_ex_rs1)) then
+----        mux_select_A <= "10";
+--      elsif ((mem_wb_load_addr = '1')and(mem_wb_load_addr = '1')) then --<what control signals and opcodes?> then  -- load address to register case --and --and mem_wb_rd = id_ex_rs1
+--        mux_select_A <= "11";
+--      elsif ((mem_wb_rd = id_ex_rs1) and (mem_wb_mem_read = '1')) then --(mem_wb_mem_read = '1')--<what control signals and opcodes?> then  -- memory to register case --and mem_wb_rd = id_ex_rs1 --add another case of a reg_write
+--        mux_select_A <= "10";
+--      else
+--        mux_select_A <= "00";
     
       -- EX hazard
-      if (ex_mem_rd = id_ex_rs1)  then --(<what control signals and opcodes?> then  -- alu to register case
+      if (ex_mem_rd = id_ex_rs1)  then --(<what control signals and opcodes?> then  -- alu to register case --and ex_mem_reg_write
         mux_select_A <= "01";
-      elsif (mem_wb_mem_read = '1') then --<what control signals and opcodes?> then  -- memory to register case
+      elsif (mem_wb_mem_read = '1') then --<what control signals and opcodes?> then  -- memory to register case --and mem_wb_rd = id_ex_rs1 --add another case of a reg_write
         mux_select_A <= "10";
-      elsif (mem_wb_load_addr = '1') then --<what control signals and opcodes?> then  -- load address to register case
+      elsif (mem_wb_load_addr = '1') then --<what control signals and opcodes?> then  -- load address to register case --and --and mem_wb_rd = id_ex_rs1
         mux_select_A <= "11";
       else
         mux_select_A <= "00";

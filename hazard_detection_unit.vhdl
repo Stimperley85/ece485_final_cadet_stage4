@@ -10,6 +10,7 @@ entity hazard_detection_unit is
         instr    : in STD_LOGIC_VECTOR(31 downto 0);        -- current  instr
         if_id_instr    : in STD_LOGIC_VECTOR(31 downto 0);  -- previous instr
         if_id_rd       : in STD_LOGIC_VECTOR(4 downto 0);   -- previous instr destination register
+        id_ex_rd       : in STD_LOGIC_VECTOR(4 downto 0);   -- previous instr destination register
         rs1      : in STD_LOGIC_VECTOR(4 downto 0);         -- current  instr source register
         rs2      : in STD_LOGIC_VECTOR(4 downto 0);         -- current  instr source register
         -- need any other input registers?
@@ -30,6 +31,7 @@ begin
     -- would opcodes of current and previous instructions be useful?
     opcode <= instr(6 downto 0);
     if_id_opcode <= if_id_instr(6 downto 0);
+
     process(if_id_mem_read, if_id_rd, rs1, rs2, if_id_opcode, opcode, stall_counter) -- any others?)
     begin  
          
@@ -53,7 +55,10 @@ begin
         elsif ((opcode = "1100011") --or (if_id_opcode = "1100011"))-- stall cases for branch or jump, needing time to calulate branch address, etc
               and (if_id_rd = rs1)) then 
                 start_stall <= '1';  
-                double_stall <= '1';    
+                double_stall <= '0';    
+--        elsif ((opcode = "1100011")and (id_ex_rd = rs1)) then 
+--                start_stall <= '1';  
+--                double_stall <= '0';  
         else        
                 start_stall <= '0';
                 double_stall <= '0';

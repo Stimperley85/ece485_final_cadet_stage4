@@ -249,6 +249,7 @@ architecture Behavioral of riscv_pipeline is
             instr    : in STD_LOGIC_VECTOR(31 downto 0);        -- current  instr
             if_id_instr    : in STD_LOGIC_VECTOR(31 downto 0);  -- previous instr
             if_id_rd       : in STD_LOGIC_VECTOR(4 downto 0);   -- previous instr destination register
+            id_ex_rd       : in STD_LOGIC_VECTOR(4 downto 0);   -- previous instr destination register
             rs1      : in STD_LOGIC_VECTOR(4 downto 0);         -- current  instr source register
             rs2      : in STD_LOGIC_VECTOR(4 downto 0);         -- current  instr source register
             -- need any other input registers?
@@ -439,6 +440,7 @@ begin
             instr    => instr,
             if_id_instr    => if_id_instr,
             if_id_rd       => if_id_rd,
+            id_ex_rd       => id_ex_rd,
             rs1      => instr(19 downto 15),
             rs2      => instr(24 downto 20),
             -- need any other input registers?
@@ -512,9 +514,9 @@ begin
            
     -- Comparator 
 --    not_equal_flag <= '1' when <what do we compare to decide if we should branch?> else '0';
-    not_equal_flag <= '1' when (ex_mem_alu_result /= if_id_reg2_data) else '0';    
+    not_equal_flag <= '1' when ((ex_mem_alu_result /= if_id_reg2_data) and (if_id_branch = '1')) else '0';     --check if if_id_branch = 1
                                         
-    next_pc <=  pc when (start_stall = '1') or (double_stall = '1') or (stall_counter > 0)else --(<what stall control signals?>) else   -- stall case, single and double
+    next_pc <=  pc when ((start_stall = '1') or (stall_counter > 0)) else --or (double_stall = '1')--(<what stall control signals?>) else   -- stall case, single and double
                 --<math based on NPC and imm> when (<what control signals?>) else -- branch case, single stall
                 std_logic_vector(signed(if_id_npc) + signed(if_id_imm)) when ((if_id_branch = '1') and (not_equal_flag = '1') and (start_stall = '0')) else
                 --<math based on NPC and imm> when (<what control signals?>) else -- branch case, double stall
@@ -536,7 +538,7 @@ begin
     --       11 forward from custom LoadAddr
     
     alu_input_a <= id_ex_reg1_data when mux_select_A = "00" else
-                   ex_mem_alu_result when mux_select_A = "01" else --THINK THIS IS WRONG
+                   ex_mem_alu_result when mux_select_A = "01" else --THINK THIS IS WRONG -- add case where it is mem_wb_mem_read = 1 mem_wb_mem_data
                    mem_wb_mem_data when mux_select_A = "10" else
                    x"10000000";            
             
