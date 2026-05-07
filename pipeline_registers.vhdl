@@ -147,11 +147,11 @@ begin
                 if_id_alu_src <= '0';
                 if_id_mem_read <= '0';
                 if_id_mem_write <= '0';
-                if_id_branch <= '0';
-                if_id_jump <= '0';
+                if_id_branch <= branch;
+                if_id_jump <= jump;
                 if_id_load_addr <= '0';
                 if_id_instr <= (others => '0');
-                if_id_npc    <= (others => '0');
+                --if_id_npc    <= (others => '0');
                 if_id_rd   <= (others => '0');
                 if_id_alu_op <= (others => '0');               
                                 

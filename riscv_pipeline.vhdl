@@ -266,6 +266,7 @@ architecture Behavioral of riscv_pipeline is
           ex_mem_rd        : in STD_LOGIC_VECTOR(4 downto 0);
           mem_wb_rd        : in STD_LOGIC_VECTOR(4 downto 0);
           id_ex_rs1        : in STD_LOGIC_VECTOR(4 downto 0);
+          if_id_rs1        : in STD_LOGIC_VECTOR(4 downto 0);
           mux_select_A     : out STD_LOGIC_VECTOR(1 downto 0)
       );
     end component;
@@ -458,7 +459,7 @@ begin
              elsif double_stall = '1' and stall_counter < 1 then --start_stall = '1' then
                 --stall_counter <= 3;
                 --stall_counter <= 2;  -- needed to support BNE [after previous stall]
-                stall_counter <= 1;
+                --stall_counter <= 1;
 --             elsif start_stall = '0' and double_stall = '1' then
 --                double_stall <= '0';
             end if;
@@ -476,7 +477,8 @@ begin
             mem_wb_load_addr => mem_wb_load_addr,
             ex_mem_rd        => ex_mem_rd,
             mem_wb_rd        => mem_wb_rd,
-            id_ex_rs1        => id_ex_rs1,
+            id_ex_rs1        => id_ex_instr(19 downto 15),--id_ex_rs1,
+            if_id_rs1        => if_id_instr(19 downto 15),
             -- need any other input or output registers?
             mux_select_A     => mux_select_A
         );
@@ -514,8 +516,9 @@ begin
                                         
     next_pc <=  pc when (start_stall = '1') or (double_stall = '1') or (stall_counter > 0)else --(<what stall control signals?>) else   -- stall case, single and double
                 --<math based on NPC and imm> when (<what control signals?>) else -- branch case, single stall
-                std_logic_vector(signed(if_id_npc) + signed(if_id_imm)) when ((if_id_branch = '1') and (not_equal_flag = '1')) else
+                std_logic_vector(signed(if_id_npc) + signed(if_id_imm)) when ((if_id_branch = '1') and (not_equal_flag = '1') and (start_stall = '0')) else
                 --<math based on NPC and imm> when (<what control signals?>) else -- branch case, double stall
+                std_logic_vector(signed(if_id_npc) + signed(if_id_imm)) when ((if_id_branch = '1') and (not_equal_flag = '1') and (stall_counter > 0)) else
                 --<math based on NPC and imm> when (<what control signals?>) else  -- jump case
                 std_logic_vector(signed(if_id_npc) + signed(if_id_imm)) when (if_id_jump = '1') else
                 NPC; -- when (<what control signals?>);    
@@ -534,7 +537,7 @@ begin
     
     alu_input_a <= id_ex_reg1_data when mux_select_A = "00" else
                    ex_mem_alu_result when mux_select_A = "01" else --THINK THIS IS WRONG
-                   mem_wb_alu_result when mux_select_A = "10" else
+                   mem_wb_mem_data when mux_select_A = "10" else
                    x"10000000";            
             
     -- mux to select alu input B (not used for forwarding for this program)
@@ -581,7 +584,7 @@ begin
 --               mem_wb_alu_result when (<what control signals?>);      
     wb_data <= mem_wb_mem_data when (mem_wb_mem_read = '1')-- and mem_wb_reg_write = '1')  --reg write
            else x"10000000" when (mem_wb_load_addr = '1')-- and mem_wb_reg_write = '1')  --reg write-- hack for custom load_addr instruction
-           else mem_wb_alu_result; -- when mem_wb_reg_write = '1'  --reg write
-           --else wb_data;
+           else mem_wb_alu_result when (mem_wb_reg_write = '1') -- when mem_wb_reg_write = '1'  --reg write
+           else wb_data;
    
 end Behavioral;

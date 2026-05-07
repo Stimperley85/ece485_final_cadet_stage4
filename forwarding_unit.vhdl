@@ -10,6 +10,7 @@ entity forwarding_unit is
         ex_mem_rd        : in STD_LOGIC_VECTOR(4 downto 0);
         mem_wb_rd        : in STD_LOGIC_VECTOR(4 downto 0);
         id_ex_rs1        : in STD_LOGIC_VECTOR(4 downto 0);
+        if_id_rs1        : in STD_LOGIC_VECTOR(4 downto 0);
         -- need any other input or output registers?
         mux_select_A     : out STD_LOGIC_VECTOR(1 downto 0)
     );
@@ -31,7 +32,7 @@ begin
       
     
       -- EX hazard
-      if (ex_mem_rd = id_ex_rs1) then --(<what control signals and opcodes?> then  -- alu to register case
+      if (ex_mem_rd = id_ex_rs1)  then --(<what control signals and opcodes?> then  -- alu to register case
         mux_select_A <= "01";
       elsif (mem_wb_mem_read = '1') then --<what control signals and opcodes?> then  -- memory to register case
         mux_select_A <= "10";
