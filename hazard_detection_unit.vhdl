@@ -52,14 +52,14 @@ begin
 --              --and  then --BNE double stall
 --                    start_stall <= '1';
 --                    double_stall <= '1';
-        elsif ((opcode = "1100011") --or (if_id_opcode = "1100011"))-- stall cases for branch or jump, needing time to calulate branch address, etc
-              and (id_ex_rd = rs1)) then 
-                start_stall <= '1';  
-                double_stall <= '0';    
 --        elsif ((opcode = "1100011") --or (if_id_opcode = "1100011"))-- stall cases for branch or jump, needing time to calulate branch address, etc
---              and (if_id_rd = rs1) then 
+--              and (id_ex_rd = rs1)) then 
 --                start_stall <= '1';  
 --                double_stall <= '0';    
+        elsif ((opcode = "1100011") --or (if_id_opcode = "1100011"))-- stall cases for branch or jump, needing time to calulate branch address, etc
+              and (if_id_rd = rs1)) then 
+                start_stall <= '1';  
+                double_stall <= '0';    
         else        
                 start_stall <= '0';
                 double_stall <= '0';
