@@ -516,7 +516,7 @@ begin
 --    not_equal_flag <= '1' when <what do we compare to decide if we should branch?> else '0';
     not_equal_flag <= '1' when ((ex_mem_alu_result /= if_id_reg2_data) and (if_id_branch = '1')) else '0';     --check if if_id_branch = 1
                                         
-    next_pc <=  pc when ((start_stall = '1') or (stall_counter > 0)) else --or (double_stall = '1')--(<what stall control signals?>) else   -- stall case, single and double
+    next_pc <=  pc when ((start_stall = '1')) else --or (double_stall = '1')--(<what stall control signals?>) else   -- stall case, single and double
                 --<math based on NPC and imm> when (<what control signals?>) else -- branch case, single stall
                 std_logic_vector(signed(if_id_npc) + signed(if_id_imm)) when ((if_id_branch = '1') and (not_equal_flag = '1') and (start_stall = '0')) else
                 --<math based on NPC and imm> when (<what control signals?>) else -- branch case, double stall
